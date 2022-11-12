@@ -45,13 +45,14 @@ namespace PlexShareApp
             this.Email_textbox.Text = Email;
             this.Email_textbox.IsEnabled = false;
             absolute_path = DownloadImage(imageLocation);
-            this.profile_picture.ImageSource = new BitmapImage(new Uri(absolute_path,UriKind.Absolute));
+            this.profile_picture.ImageSource = new BitmapImage(new Uri(absolute_path, UriKind.Absolute));
         }
 
         private void New_Meeting_Button_Click(object sender, RoutedEventArgs e)
         {
             bool invalid = false;
-            if (string.IsNullOrEmpty(this.Name_box.Text)){
+            if (string.IsNullOrEmpty(this.Name_box.Text))
+            {
                 this.Name_box.Text = "";
                 this.Name_block.Text = "Please Enter Name!!!";
                 invalid = true;
@@ -60,11 +61,11 @@ namespace PlexShareApp
             {
                 return;
             }
-            
 
-            MainScreenView mainScreenView = new MainScreenView();
 
-            
+            MainScreenView mainScreenView = new MainScreenView(this.Name_box.Text, this.Email_textbox.Text, absolute_path, ImageLocation, "-1", "0");
+
+
             //
             //
 
@@ -87,17 +88,17 @@ namespace PlexShareApp
                 this.Server_IP_textblock.Text = "Please Enter Server IP!!!";
                 invalid = true;
             }
-            if (string.IsNullOrEmpty(this.Server_IP.Text))
+            if (string.IsNullOrEmpty(this.Server_PORT.Text))
             {
                 this.Server_PORT.Text = "";
                 this.Server_PORT_textblock.Text = "Please Enter Server PORT!!!";
-                invalid=true;
+                invalid = true;
             }
             if (invalid)
             {
                 return;
             }
-            MainScreenView mainScreenView = new MainScreenView();
+            MainScreenView mainScreenView = new MainScreenView(this.Name_box.Text, this.Email_textbox.Text, absolute_path, ImageLocation, this.Server_IP.Text, this.Server_PORT.Text);
             mainScreenView.Show();
             this.Close();
         }
@@ -113,20 +114,20 @@ namespace PlexShareApp
         {
             string imageName = "";
             int len_email = Email.Length;
-            for(int i=0;i<len_email;i++)
+            for (int i = 0; i < len_email; i++)
             {
-                if(Email[i] == '@')
+                if (Email[i] == '@')
                     break;
-                imageName+=Email[i];
+                imageName += Email[i];
             }
             string dir = Environment.GetEnvironmentVariable("temp", EnvironmentVariableTarget.User);
             string absolute_path = System.IO.Path.Combine(dir, imageName);
-            if(File.Exists(absolute_path))
+            if (File.Exists(absolute_path))
             {
                 File.Delete(absolute_path);
             }
             using (WebClient webClient = new())
-            { 
+            {
                 webClient.DownloadFile(ImageLocation, absolute_path);
             }
             return absolute_path;
