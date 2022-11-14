@@ -113,6 +113,7 @@ namespace PlexShareDashboard.Dashboard.Server.Telemetry
             SessionAnalytics currSessionAnalytics = new SessionAnalytics();
             currSessionAnalytics.chatCountForEachUser = userIdVsChatCount;
             currSessionAnalytics.listOfInSincereMembers = listOfInSincereMembers;
+            currSessionAnalytics.userNamelistOfInSincereMembers = userNamelistOfInSincereMembers;
             currSessionAnalytics.userCountVsTimeStamp = userCountVsEachTimeStamp;
             currSessionAnalytics.userNameVsChatCount = userNameVsChatCount;
             SessionSummary sessionSummary = new SessionSummary();

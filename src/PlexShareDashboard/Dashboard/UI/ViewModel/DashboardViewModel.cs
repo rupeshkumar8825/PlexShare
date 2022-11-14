@@ -337,7 +337,8 @@ namespace PlexShareDashboard.Dashboard.UI.ViewModel
             ////defining the sessionanalytics to store the information about the sessionanalytics 
             sessionAnalytics = new SessionAnalytics();
             sessionAnalytics.chatCountForEachUser = new Dictionary<int, int>();
-            sessionAnalytics.listOfInSincereMembers = new List<string>();
+            sessionAnalytics.listOfInSincereMembers = new List<int>();
+            sessionAnalytics.userNamelistOfInSincereMembers = new List<string>();
             sessionAnalytics.userCountVsTimeStamp = new Dictionary<DateTime, int>();
             sessionAnalytics.sessionSummary = new SessionSummary();
 
@@ -891,7 +892,7 @@ namespace PlexShareDashboard.Dashboard.UI.ViewModel
             //calling the function to update and show the username vs chat count 
             UpdateUserNameVsChatCount(sessionAnalytics.userNameVsChatCount);
 
-            int currNonAttentiveUsers = sessionAnalytics.listOfInSincereMembers.Count;
+            int currNonAttentiveUsers = sessionAnalytics.userNamelistOfInSincereMembers.Count;
             int currAttentiveUsers = MaxTotalParticipantsCountSetter - currNonAttentiveUsers;
 
             CalculatePercentageOfAttentiveAndNonAttentiveUsers(currNonAttentiveUsers, currAttentiveUsers);
