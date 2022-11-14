@@ -13,6 +13,7 @@ using PlexShareContent.DataModels;
 using Dashboard.Server.Persistence;
 using Dashboard;
 using System.Runtime.InteropServices;
+using System.Windows;
 
 namespace PlexShareDashboard.Dashboard.Server.Telemetry
 {
@@ -30,6 +31,8 @@ namespace PlexShareDashboard.Dashboard.Server.Telemetry
         public Dictionary<UserData, DateTime> eachUserExitTime = new Dictionary<UserData, DateTime>();
         public Dictionary<int, int> userIdVsChatCount = new Dictionary<int, int>();
         public List<int> listOfInSincereMembers = new List<int>();
+        public List<string> userNamelistOfInSincereMembers = new List<
+            string>();
 
         private DateTime sessionStartTime;
 
@@ -50,7 +53,7 @@ namespace PlexShareDashboard.Dashboard.Server.Telemetry
 
 
         //this will store the time for which the user was present throughout the session 
-        Dictionary<string, int> eachUserMeetingDurationTime = new Dictionary<string, int>();
+        Dictionary<string, double> eachUserMeetingDurationTime = new Dictionary<string, double>();
 
 
         //constructor for telemetry module 
@@ -188,25 +191,56 @@ namespace PlexShareDashboard.Dashboard.Server.Telemetry
 
 
         //function to calculate the insincere members when the meeting ends and the session manager tells to save the details and the insincere members list will only be calculated then only
+        //public void GetListOfInsincereMembers(DateTime currTime)
+        //{
+        //    //clearing the list to recalculate the insincere members whenever the 
+        //    listOfInSincereMembers.Clear();
+
+        //    //we have to calculate the threshold time here to find the attentie and non attentive users for this purpose 
+
+        //    //using the for loop to find who all users are insincere 
+        //    foreach (var currElelement in eachUserEnterTimeInMeeting)
+        //    {
+        //        var currUserData = currElelement.Key;
+
+        //        //if this user is present in the exit array then this has left 
+        //        if (eachUserExitTime.ContainsKey(currUserData) && eachUserExitTime[currUserData].Subtract(currElelement.Value).TotalMinutes < thresholdTime)
+        //        {
+        //            //then this is considered as the insincere member hence we have to add this to the list 
+        //            listOfInSincereMembers.Add(currUserData.userID);
+        //        }
+        //    }
+        //    //say everything went fine 
+        //    return;
+        //}
+
         public void GetListOfInsincereMembers(DateTime currTime)
         {
             //clearing the list to recalculate the insincere members whenever the 
-            listOfInSincereMembers.Clear();
+            userNamelistOfInSincereMembers.Clear();
 
-            //we have to calculate the threshold time here to find the attentie and non attentive users for this purpose 
+            //making the threshold as 60% Duration till now 
+            double threshold = (currTime - sessionStartTime).TotalMinutes;
+            threshold = (60 * threshold) / 100;
 
-            //using the for loop to find who all users are insincere 
-            foreach (var currElelement in eachUserEnterTimeInMeeting)
+
+            //using the for  loop for this purpose 
+            foreach (var eachUser in eachUserMeetingDurationTime)
             {
-                var currUserData = currElelement.Key;
-
-                //if this user is present in the exit array then this has left 
-                if (eachUserExitTime.ContainsKey(currUserData) && eachUserExitTime[currUserData].Subtract(currElelement.Value).TotalMinutes < thresholdTime)
+                if (listOfCurrUserWithEntryTime.ContainsKey(eachUser.Key) == false && eachUser.Value < threshold)
                 {
-                    //then this is considered as the insincere member hence we have to add this to the list 
-                    listOfInSincereMembers.Add(currUserData.userID);
+                    //then this is insincere members 
+                    userNamelistOfInSincereMembers.Add(eachUser.Key);
                 }
+                else if (((currTime - listOfCurrUserWithEntryTime[eachUser.Key]).TotalMinutes+ eachUser.Value) < threshold)
+                {
+                    //then this is insincere members 
+                    userNamelistOfInSincereMembers.Add(eachUser.Key);
+                    
+                }
+                //if ((eachUser.Value + ))
             }
+
             //say everything went fine 
             return;
         }
@@ -290,54 +324,96 @@ namespace PlexShareDashboard.Dashboard.Server.Telemetry
 
 
         //function to calculate the arrival and exit time of the users 
+        //public void CalculateArrivalExitTimeOfUser(SessionData newSession, DateTime currTime)
+        //{
+        //    foreach (var currUser in newSession.users)
+        //    {
+        //        //if the user is not present in the entertimemeeting dictionary then this is joining again 
+        //        if (eachUserEnterTimeInMeeting.ContainsKey(currUser) == false)
+        //            eachUserEnterTimeInMeeting[currUser] = currTime;
+
+
+
+        //    }
+        //    //checking for the left users 
+        //    foreach (var currUser in eachUserEnterTimeInMeeting)
+        //    {
+        //        if (newSession.users.Contains(currUser.Key) == false && eachUserExitTime.ContainsKey(currUser.Key) == false)
+        //            eachUserExitTime[currUser.Key] = currTime;
+
+        //    }
+
+        //    //say everything went fine 
+        //    return;
+        //}
+
         public void CalculateArrivalExitTimeOfUser(SessionData newSession, DateTime currTime)
         {
+            //using the for loop for this purpose 
             foreach (var currUser in newSession.users)
             {
-                //if the user is not present in the entertimemeeting dictionary then this is joining again 
-                if (eachUserEnterTimeInMeeting.ContainsKey(currUser) == false)
-                    eachUserEnterTimeInMeeting[currUser] = currTime;
+                //if new user comes 
+                if (listOfCurrUserWithEntryTime.ContainsKey(currUser.userEmail) == false)
+                {
+                    //then we have to update the entry time in this
+                    listOfCurrUserWithEntryTime[currUser.userEmail] = currTime;
 
+                    //if there is no entry has been made in the duration dictionary then add this user with duration time 0 
+                    if (eachUserMeetingDurationTime.ContainsKey(currUser.userEmail) == false)
+                    {
+                        eachUserMeetingDurationTime[currUser.userEmail] = 0;
 
+                    }
+                    else
+                    {
+                        //if entry is already there then we do not need to do anything 
+                    }
+                }
+                else
+                { 
+                    //this means that we have the curruser hence we do not need to do anything
+                }
 
+                
             }
-            //checking for the left users 
-            foreach (var currUser in eachUserEnterTimeInMeeting)
-            {
-                if (newSession.users.Contains(currUser.Key) == false && eachUserExitTime.ContainsKey(currUser.Key) == false)
-                    eachUserExitTime[currUser.Key] = currTime;
 
+
+            //now logic to implement the exit times and also update the duration of the user 
+            //using the for loop for this purose 
+            foreach (var eachUser in listOfCurrUserWithEntryTime)
+            {
+                bool isPresent = false;
+                //if the user is not present in the new session data that means this user has left 
+                foreach (var currUser in newSession.users)
+                {
+                    if (currUser.userEmail == eachUser.Key)
+                    {
+                        isPresent = true;
+                        break;
+                    }
+                }
+
+                if (isPresent == false)
+                {
+                    //this means that this user is not present in the new session data and it has exited 
+                    //updating the duration of the user 
+                    eachUserMeetingDurationTime[eachUser.Key] += (currTime - listOfCurrUserWithEntryTime[eachUser.Key]).TotalMinutes;
+
+                    //now we have to delete the user from the listofcurruserwithentrytime 
+                    listOfCurrUserWithEntryTime.Remove(eachUser.Key);
+
+                }
+                else
+                { 
+                    //this means that this user is still present in the session 
+                    //so we do need to do anything 
+                }
             }
 
             //say everything went fine 
             return;
+
         }
-
-        //public void CalculateArrivalExitTimeOfUser(SessionData newSession, DateTime currTime)
-        //{
-        //    //using the for loop for this purpose 
-        //    foreach (var currUser in newSession.users)
-        //    {
-        //        //if new user comes 
-        //        if (listOfCurrUserWithEntryTime.ContainsKey(currUser.userEmail) == false)
-        //        {
-        //            //then we have to update the entry time in this
-        //            listOfCurrUserWithEntryTime[currUser.userEmail] = currTime;
-
-        //            //if there is no entry has been made in the duration dictionary then add this user with duration time 0 
-        //            if (eachUserMeetingDurationTime.ContainsKey(currUser.userEmail) == false)
-        //            {
-        //                eachUserMeetingDurationTime[currUser.userEmail] = 0;
-
-        //            }
-        //            else
-        //            { 
-        //                //if entry is already there then we do not need to do anything 
-        //            }
-        //        }
-        //    }
-
-        //}
 
 
 
