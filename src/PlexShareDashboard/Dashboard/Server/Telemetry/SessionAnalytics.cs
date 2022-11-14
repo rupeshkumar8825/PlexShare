@@ -11,7 +11,7 @@ namespace PlexShareDashboard.Dashboard.Server.Telemetry
         public Dictionary<int, int> chatCountForEachUser;
         public Dictionary<string, int> userNameVsChatCount;
 
-        public List<int> listOfInSincereMembers;
+        public List<string> listOfInSincereMembers;
 
         public Dictionary<DateTime, int> userCountVsTimeStamp;
 

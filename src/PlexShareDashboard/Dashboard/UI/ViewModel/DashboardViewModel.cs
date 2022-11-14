@@ -90,6 +90,8 @@ namespace PlexShareDashboard.Dashboard.UI.ViewModel
 
         //adding the new variable to store the value of the summary 
         private string SummaryContent { get; set; }
+
+        private int MaxTotalParticipantsCount { get; set; }
         //public string ReceivedImage { get; set; }
         public Bitmap ReceivedImage
         {
@@ -117,6 +119,8 @@ namespace PlexShareDashboard.Dashboard.UI.ViewModel
             }
         }
 
+
+
         public int TotalParticipantsCountSetter
         {
             get { return TotalParticipantsCount; }
@@ -126,6 +130,19 @@ namespace PlexShareDashboard.Dashboard.UI.ViewModel
                 {
                     TotalParticipantsCount = value;
                     OnPropertyChanged("TotalParticipantsCountSetter");
+                }
+            }
+        }
+
+        public int MaxTotalParticipantsCountSetter
+        {
+            get { return MaxTotalParticipantsCount; }
+            set
+            {
+                if (MaxTotalParticipantsCount != value)
+                {
+                    MaxTotalParticipantsCount = value;
+                    OnPropertyChanged("MaxTotalParticipantsCountSetter");
                 }
             }
         }
@@ -286,6 +303,7 @@ namespace PlexShareDashboard.Dashboard.UI.ViewModel
             NonAttentiveUsersSetter = 0;
 
             TotalParticipantsCountSetter = 1;
+            MaxTotalParticipantsCountSetter = 1;
             TotalMessageCountSetter = 0;
             EngagementRateSetter = "0";
             //TotalParticipantsCountSetter = 1;
@@ -319,7 +337,7 @@ namespace PlexShareDashboard.Dashboard.UI.ViewModel
             ////defining the sessionanalytics to store the information about the sessionanalytics 
             sessionAnalytics = new SessionAnalytics();
             sessionAnalytics.chatCountForEachUser = new Dictionary<int, int>();
-            sessionAnalytics.listOfInSincereMembers = new List<int>();
+            sessionAnalytics.listOfInSincereMembers = new List<string>();
             sessionAnalytics.userCountVsTimeStamp = new Dictionary<DateTime, int>();
             sessionAnalytics.sessionSummary = new SessionSummary();
 
@@ -722,7 +740,17 @@ namespace PlexShareDashboard.Dashboard.UI.ViewModel
 
 
 
+        public void SetMaxTotalParticipantsCount()
+        {
+            if (MaxTotalParticipantsCountSetter < TotalParticipantsCountSetter)
+            {
+                MaxTotalParticipantsCountSetter = TotalParticipantsCountSetter;
+            }
 
+
+            //say everything went fine 
+            return;
+        }
 
         //#####################################################################################
 
@@ -740,6 +768,7 @@ namespace PlexShareDashboard.Dashboard.UI.ViewModel
                 UpdateButtonContent(currUser);
                 //UpdateButtonContent(currUser);
                 TotalParticipantsCountSetter = ParticipantsList.Count;
+                SetMaxTotalParticipantsCount();
 
             }
 
@@ -762,6 +791,7 @@ namespace PlexShareDashboard.Dashboard.UI.ViewModel
                 UpdateButtonContent(currUser);
                 //UpdateButtonContent(currUser);
                 TotalParticipantsCountSetter = ParticipantsList.Count;
+                SetMaxTotalParticipantsCount();
 
             }
 
@@ -862,7 +892,7 @@ namespace PlexShareDashboard.Dashboard.UI.ViewModel
             UpdateUserNameVsChatCount(sessionAnalytics.userNameVsChatCount);
 
             int currNonAttentiveUsers = sessionAnalytics.listOfInSincereMembers.Count;
-            int currAttentiveUsers = TotalParticipantsCountSetter - currNonAttentiveUsers;
+            int currAttentiveUsers = MaxTotalParticipantsCountSetter - currNonAttentiveUsers;
 
             CalculatePercentageOfAttentiveAndNonAttentiveUsers(currNonAttentiveUsers, currAttentiveUsers);
 
@@ -877,7 +907,7 @@ namespace PlexShareDashboard.Dashboard.UI.ViewModel
         {
             int activeMembers = currChatCountForEachUser.Count;
 
-            float EngagementRate = (float)(activeMembers*100) / TotalParticipantsCountSetter;
+            float EngagementRate = (float)(activeMembers*100) / MaxTotalParticipantsCountSetter;
             EngagementRateSetter = EngagementRate.ToString("0") + "%";
 
 
